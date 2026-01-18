@@ -1,4 +1,9 @@
-import { Injectable, UnauthorizedException, ConflictException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  UnauthorizedException,
+  ConflictException,
+  BadRequestException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -20,7 +25,10 @@ export class AuthService {
   async sendOtp(phoneNumber: string): Promise<{ message: string }> {
     // Generate 6-digit OTP
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    const expiryMinutes = this.configService.get<number>('OTP_EXPIRY_MINUTES', 5);
+    const expiryMinutes = this.configService.get<number>(
+      'OTP_EXPIRY_MINUTES',
+      5,
+    );
     const expiresAt = new Date();
     expiresAt.setMinutes(expiresAt.getMinutes() + expiryMinutes);
 
@@ -92,7 +100,11 @@ export class AuthService {
     }
 
     // Generate JWT token
-    const payload = { sub: user.id, phoneNumber: user.phoneNumber, role: user.role };
+    const payload = {
+      sub: user.id,
+      phoneNumber: user.phoneNumber,
+      role: user.role,
+    };
     const accessToken = this.jwtService.sign(payload);
 
     return { accessToken, user };

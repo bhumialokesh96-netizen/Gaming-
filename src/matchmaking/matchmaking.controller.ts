@@ -1,10 +1,14 @@
 import { Controller, Post, Delete, Body, UseGuards } from '@nestjs/common';
+import { IsNumber, IsPositive, Min } from 'class-validator';
 import { MatchmakingService } from './matchmaking.service';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { User } from '../entities/user.entity';
 
 class JoinMatchmakingDto {
+  @IsNumber()
+  @IsPositive()
+  @Min(10)
   stakeAmount: number;
 }
 

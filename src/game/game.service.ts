@@ -1,4 +1,8 @@
-import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Game } from '../entities/game.entity';
@@ -29,7 +33,7 @@ export class GameService {
 
   async startGame(gameId: string): Promise<Game> {
     const game = await this.getGame(gameId);
-    
+
     if (game.status !== GameStatus.WAITING) {
       throw new BadRequestException('Game already started');
     }
@@ -46,7 +50,10 @@ export class GameService {
     return this.gameRepository.save(game);
   }
 
-  async rollDice(gameId: string, userId: string): Promise<{ diceValue: number; game: Game }> {
+  async rollDice(
+    gameId: string,
+    userId: string,
+  ): Promise<{ diceValue: number; game: Game }> {
     const game = await this.getGame(gameId);
 
     if (game.status !== GameStatus.IN_PROGRESS) {
@@ -103,8 +110,8 @@ export class GameService {
     positions[pieceIndex] += state.lastDiceRoll;
 
     // Check for win condition
-    const allPiecesHome = positions.every(pos => pos >= 57);
-    
+    const allPiecesHome = positions.every((pos) => pos >= 57);
+
     if (allPiecesHome) {
       game.status = GameStatus.COMPLETED;
       game.winnerId = userId;
@@ -119,7 +126,8 @@ export class GameService {
     } else {
       // Switch turn (unless rolled 6)
       if (state.lastDiceRoll !== 6) {
-        state.turn = state.turn === game.player1Id ? game.player2Id : game.player1Id;
+        state.turn =
+          state.turn === game.player1Id ? game.player2Id : game.player1Id;
       }
       state.lastDiceRoll = undefined;
     }

@@ -1,13 +1,31 @@
 import { Controller, Post, Body, HttpCode, HttpStatus } from '@nestjs/common';
+import { IsString, IsNotEmpty, Length, Matches } from 'class-validator';
 import { AuthService } from './auth.service';
 
 class SendOtpDto {
+  @IsString()
+  @IsNotEmpty()
+  @Matches(/^\+?[1-9]\d{1,14}$/, {
+    message: 'Phone number must be in valid international format',
+  })
   phoneNumber: string;
 }
 
 class VerifyOtpDto {
+  @IsString()
+  @IsNotEmpty()
+  @Matches(/^\+?[1-9]\d{1,14}$/, {
+    message: 'Phone number must be in valid international format',
+  })
   phoneNumber: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @Length(6, 6)
   otp: string;
+
+  @IsString()
+  @IsNotEmpty()
   deviceId: string;
 }
 

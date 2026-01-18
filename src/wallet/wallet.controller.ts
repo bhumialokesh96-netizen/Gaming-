@@ -1,4 +1,5 @@
 import { Controller, Get, Post, Body, UseGuards } from '@nestjs/common';
+import { IsNumber, IsString, IsPositive, Min } from 'class-validator';
 import { WalletService } from './wallet.service';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
@@ -6,8 +7,15 @@ import { User } from '../entities/user.entity';
 import { TransactionType } from '../common/enums';
 
 class DepositDto {
+  @IsNumber()
+  @IsPositive()
+  @Min(1)
   amount: number;
+
+  @IsString()
   paymentMethod: string;
+
+  @IsString()
   transactionId: string;
 }
 

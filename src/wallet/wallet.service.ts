@@ -43,12 +43,10 @@ export class WalletService {
           locked += amount;
           break;
         case TransactionType.WITHDRAW_REQUEST:
-        case TransactionType.PENALTY:
-          available -= amount;
-          break;
         case TransactionType.WITHDRAW_SUCCESS:
+        case TransactionType.PENALTY:
         case TransactionType.COMMISSION:
-          // Already deducted in WITHDRAW_REQUEST or taken from winnings
+          available -= amount;
           break;
       }
     }
@@ -145,7 +143,11 @@ export class WalletService {
     }
   }
 
-  async lockFunds(userId: string, amount: number, gameId: string): Promise<Ledger> {
+  async lockFunds(
+    userId: string,
+    amount: number,
+    gameId: string,
+  ): Promise<Ledger> {
     return this.createTransaction(
       userId,
       TransactionType.BET_LOCK,
@@ -156,7 +158,11 @@ export class WalletService {
     );
   }
 
-  async releaseFunds(userId: string, amount: number, gameId: string): Promise<Ledger> {
+  async releaseFunds(
+    userId: string,
+    amount: number,
+    gameId: string,
+  ): Promise<Ledger> {
     return this.createTransaction(
       userId,
       TransactionType.BET_RELEASE,
@@ -167,7 +173,11 @@ export class WalletService {
     );
   }
 
-  async creditWinnings(userId: string, amount: number, gameId: string): Promise<Ledger> {
+  async creditWinnings(
+    userId: string,
+    amount: number,
+    gameId: string,
+  ): Promise<Ledger> {
     return this.createTransaction(
       userId,
       TransactionType.WIN_CREDIT,
@@ -178,7 +188,11 @@ export class WalletService {
     );
   }
 
-  async deductCommission(userId: string, amount: number, gameId: string): Promise<Ledger> {
+  async deductCommission(
+    userId: string,
+    amount: number,
+    gameId: string,
+  ): Promise<Ledger> {
     return this.createTransaction(
       userId,
       TransactionType.COMMISSION,

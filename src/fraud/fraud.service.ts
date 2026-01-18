@@ -17,10 +17,7 @@ export class FraudService {
     private gameRepository: Repository<Game>,
   ) {}
 
-  async checkDeviceFingerprint(
-    userId: string,
-    deviceInfo: any,
-  ): Promise<void> {
+  async checkDeviceFingerprint(userId: string, deviceInfo: any): Promise<void> {
     // Check for emulator indicators
     const isEmulator = this.detectEmulator(deviceInfo);
     if (isEmulator) {
@@ -57,7 +54,7 @@ export class FraudService {
     const deviceBrand = deviceInfo?.brand?.toLowerCase() || '';
 
     return emulatorIndicators.some(
-      indicator =>
+      (indicator) =>
         deviceModel.includes(indicator) || deviceBrand.includes(indicator),
     );
   }
@@ -90,7 +87,7 @@ export class FraudService {
       return; // Not enough data
     }
 
-    const wins = games.filter(game => game.winnerId === userId).length;
+    const wins = games.filter((game) => game.winnerId === userId).length;
     const winRatio = wins / games.length;
 
     // Flag if win ratio is suspiciously high (>75%)
@@ -120,8 +117,10 @@ export class FraudService {
 
     // Flag if users play together too frequently (>5 times in 30 days)
     if (games.length > 5) {
-      const userWins = games.filter(game => game.winnerId === userId).length;
-      const opponentWins = games.filter(game => game.winnerId === opponentId).length;
+      const userWins = games.filter((game) => game.winnerId === userId).length;
+      const opponentWins = games.filter(
+        (game) => game.winnerId === opponentId,
+      ).length;
 
       // Check for suspicious win patterns
       if (Math.abs(userWins - opponentWins) > games.length * 0.7) {
@@ -152,7 +151,10 @@ export class FraudService {
     }
   }
 
-  async checkMultipleAccounts(phoneNumber: string, deviceId: string): Promise<void> {
+  async checkMultipleAccounts(
+    phoneNumber: string,
+    deviceId: string,
+  ): Promise<void> {
     // Check if this device has been used with multiple phone numbers
     const usersWithSameDevice = await this.userRepository.find({
       where: { deviceId },
@@ -164,7 +166,7 @@ export class FraudService {
           user.id,
           FraudAlertType.MULTIPLE_ACCOUNTS,
           'Multiple accounts detected on same device',
-          { deviceId, affectedUsers: usersWithSameDevice.map(u => u.id) },
+          { deviceId, affectedUsers: usersWithSameDevice.map((u) => u.id) },
         );
       }
     }

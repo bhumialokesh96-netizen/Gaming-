@@ -19,8 +19,8 @@ import { OtpVerification } from '../entities/otp-verification.entity';
         const expiresIn = configService.get<string>('JWT_EXPIRES_IN') || '7d';
         return {
           secret: configService.get<string>('JWT_SECRET') || 'default-secret',
-          signOptions: { 
-            expiresIn: expiresIn as any
+          signOptions: {
+            expiresIn: expiresIn as any,
           },
         };
       },

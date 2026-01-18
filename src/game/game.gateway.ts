@@ -11,6 +11,7 @@ import { Server, Socket } from 'socket.io';
 import { UseGuards } from '@nestjs/common';
 import { GameService } from './game.service';
 import { SettlementService } from '../settlement/settlement.service';
+import { GameStatus } from '../common/enums';
 
 @WebSocketGateway({ cors: true })
 export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
@@ -44,7 +45,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
   ) {
     try {
       const game = await this.gameService.getGame(data.gameId);
-      
+
       // Verify user is part of this game
       if (game.player1Id !== data.userId && game.player2Id !== data.userId) {
         return { error: 'Unauthorized' };
@@ -117,7 +118,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
       });
 
       // Check if game completed
-      if (game.status === 'COMPLETED') {
+      if (game.status === GameStatus.COMPLETED) {
         // Settle the game
         await this.settlementService.settleGame(game.id);
         this.server.to(data.gameId).emit('game_completed', {

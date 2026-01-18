@@ -36,7 +36,10 @@ export class MatchmakingService {
     return `matchmaking:user:${userId}`;
   }
 
-  async joinMatchmaking(userId: string, stakeAmount: number): Promise<{ status: string; gameId?: string }> {
+  async joinMatchmaking(
+    userId: string,
+    stakeAmount: number,
+  ): Promise<{ status: string; gameId?: string }> {
     // Check if user already in matchmaking
     const existing = await this.redis.get(this.getUserKey(userId));
     if (existing) {
@@ -56,11 +59,16 @@ export class MatchmakingService {
     // Add to queue
     const queueKey = this.getQueueKey(stakeAmount);
     await this.redis.lpush(queueKey, JSON.stringify(entry));
-    await this.redis.set(this.getUserKey(userId), JSON.stringify(entry), 'EX', 120);
+    await this.redis.set(
+      this.getUserKey(userId),
+      JSON.stringify(entry),
+      'EX',
+      120,
+    );
 
     // Try to match immediately
     const match = await this.tryMatch(stakeAmount);
-    
+
     if (match) {
       return { status: 'matched', gameId: match.id };
     }
@@ -71,17 +79,17 @@ export class MatchmakingService {
   async cancelMatchmaking(userId: string): Promise<void> {
     const userKey = this.getUserKey(userId);
     const entryStr = await this.redis.get(userKey);
-    
+
     if (!entryStr) {
       throw new BadRequestException('Not in matchmaking');
     }
 
     const entry: MatchmakingEntry = JSON.parse(entryStr);
-    
+
     // Remove from queue
     const queueKey = this.getQueueKey(entry.stakeAmount);
     const queueEntries = await this.redis.lrange(queueKey, 0, -1);
-    
+
     for (const queueEntry of queueEntries) {
       const parsedEntry: MatchmakingEntry = JSON.parse(queueEntry);
       if (parsedEntry.userId === userId) {
@@ -91,7 +99,11 @@ export class MatchmakingService {
     }
 
     // Release funds
-    await this.walletService.releaseFunds(userId, entry.stakeAmount, 'CANCELLED');
+    await this.walletService.releaseFunds(
+      userId,
+      entry.stakeAmount,
+      'CANCELLED',
+    );
 
     // Remove user entry
     await this.redis.del(userKey);
@@ -99,10 +111,10 @@ export class MatchmakingService {
 
   private async tryMatch(stakeAmount: number): Promise<Game | null> {
     const queueKey = this.getQueueKey(stakeAmount);
-    
+
     // Get first two players from queue
     const entries = await this.redis.lrange(queueKey, 0, 1);
-    
+
     if (entries.length < 2) {
       return null;
     }
@@ -115,7 +127,10 @@ export class MatchmakingService {
     await this.redis.lrem(queueKey, 1, entries[1]);
 
     // Create game
-    const commissionPercent = this.configService.get<number>('PLATFORM_COMMISSION_PERCENT', 10);
+    const commissionPercent = this.configService.get<number>(
+      'PLATFORM_COMMISSION_PERCENT',
+      10,
+    );
     const totalStake = stakeAmount * 2;
     const commissionAmount = (totalStake * commissionPercent) / 100;
 
@@ -140,21 +155,27 @@ export class MatchmakingService {
   private startTimeoutChecker() {
     setInterval(async () => {
       const stakes = [10, 50, 100, 500, 1000]; // Common stake levels
-      
+
       for (const stake of stakes) {
         const queueKey = this.getQueueKey(stake);
         const entries = await this.redis.lrange(queueKey, 0, -1);
-        
+
         const now = Date.now();
-        const timeout = this.configService.get<number>('MATCHMAKING_TIMEOUT_SECONDS', 120) * 1000;
+        const timeout =
+          this.configService.get<number>('MATCHMAKING_TIMEOUT_SECONDS', 120) *
+          1000;
 
         for (const entryStr of entries) {
           const entry: MatchmakingEntry = JSON.parse(entryStr);
-          
+
           if (now - entry.timestamp > timeout) {
             // Timeout - cancel and refund
             await this.redis.lrem(queueKey, 1, entryStr);
-            await this.walletService.releaseFunds(entry.userId, entry.stakeAmount, 'TIMEOUT');
+            await this.walletService.releaseFunds(
+              entry.userId,
+              entry.stakeAmount,
+              'TIMEOUT',
+            );
             await this.redis.del(this.getUserKey(entry.userId));
           }
         }

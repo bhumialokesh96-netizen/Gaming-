@@ -47,11 +47,15 @@ export class SettlementService {
       }
 
       // Validate winner
-      if (game.winnerId !== game.player1Id && game.winnerId !== game.player2Id) {
+      if (
+        game.winnerId !== game.player1Id &&
+        game.winnerId !== game.player2Id
+      ) {
         throw new BadRequestException('Invalid winner');
       }
 
-      const loserId = game.winnerId === game.player1Id ? game.player2Id : game.player1Id;
+      const loserId =
+        game.winnerId === game.player1Id ? game.player2Id : game.player1Id;
 
       // Calculate amounts
       const totalStake = parseFloat(game.stakeAmount.toString()) * 2;
@@ -76,7 +80,9 @@ export class SettlementService {
       // Mark as settled
       this.settledGames.add(gameId);
 
-      console.log(`Game ${gameId} settled: Winner ${game.winnerId} receives ${winnerAmount}`);
+      console.log(
+        `Game ${gameId} settled: Winner ${game.winnerId} receives ${winnerAmount}`,
+      );
     } catch (error) {
       await queryRunner.rollbackTransaction();
       throw error;
