@@ -154,7 +154,9 @@ export class MatchmakingService {
 
   private startTimeoutChecker() {
     setInterval(async () => {
-      const stakes = [10, 50, 100, 500, 1000]; // Common stake levels
+      // TODO: Fetch stake levels from GameConfig entity for dynamic management
+      // For now using common stake levels as fallback
+      const stakes = [10, 50, 100, 500, 1000];
 
       for (const stake of stakes) {
         const queueKey = this.getQueueKey(stake);

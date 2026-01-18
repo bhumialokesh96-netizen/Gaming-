@@ -91,6 +91,7 @@ export class WalletService {
           break;
         case TransactionType.BET_LOCK:
         case TransactionType.WITHDRAW_REQUEST:
+        case TransactionType.WITHDRAW_SUCCESS:
         case TransactionType.PENALTY:
         case TransactionType.COMMISSION:
           balanceAfter -= amount;

@@ -42,7 +42,10 @@ export class FraudService {
   }
 
   private detectEmulator(deviceInfo: any): boolean {
-    // Simplified emulator detection logic
+    // Note: These indicators may become outdated. In production, consider:
+    // - Using a dedicated device fingerprinting service
+    // - Fetching updated signatures from a configurable source
+    // - Regularly updating this list based on new emulator patterns
     const emulatorIndicators = [
       'generic',
       'emulator',

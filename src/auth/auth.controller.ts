@@ -5,6 +5,8 @@ import { AuthService } from './auth.service';
 class SendOtpDto {
   @IsString()
   @IsNotEmpty()
+  // Note: This regex provides basic validation. For production, consider using
+  // a comprehensive library like libphonenumber-js for better international format support
   @Matches(/^\+?[1-9]\d{1,14}$/, {
     message: 'Phone number must be in valid international format',
   })

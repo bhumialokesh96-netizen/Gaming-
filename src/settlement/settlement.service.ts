@@ -60,6 +60,10 @@ export class SettlementService {
       // Calculate amounts
       const totalStake = parseFloat(game.stakeAmount.toString()) * 2;
       const commission = parseFloat(game.commissionAmount.toString());
+      // Winner receives: total stake minus commission
+      // Note: Winner's original locked bet is implicitly included in this calculation
+      // since both players' stakes were locked (2x stakeAmount) and winner gets back
+      // (2x stakeAmount - commission)
       const winnerAmount = totalStake - commission;
 
       // Credit winner (locked funds are released and winnings added)
